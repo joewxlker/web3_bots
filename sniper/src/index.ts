@@ -1,23 +1,16 @@
-import calculate_gas_price, { computeBuyOrderFromTransaction } from "./util/calculategas";
-import { ABI, BUY_AMOUNT, IGNORE_HONEYPOT_SCAN } from './constants'
-import { iface, CONTRACT, UNI_WOUTER } from "./constants";
+import { computeBuyOrderFromTransaction } from "./util/calculategas";
+import { accounts, contract, customWsProvider, IGNORE_HONEYPOT_SCAN, LOG_TOKEN_URLS_ON_STARTUP } from './constants'
+import { CONTRACT } from "./constants";
 import { buyToken, sellToken } from "./util";
-import HoneypotScan, { HoneypotChains } from '@normalizex/honeypot-is';
-//@ts-ignore
+import HoneypotScan from '@normalizex/honeypot-is';
 import * as Ethers from 'ethers';
 import Logger from "./util/logger";
-import Updater from "./util/updater";
-const ethers = require('ethers');
 require('dotenv').config({ path: '.env' });
 var colors = require('colors');
 const express = require("express");
 const http = require('http');
-const app = express();
+const app = express(); colors.enable();
 const PORT = process.env.PORT || 3880 || 3001;
-colors.enable()
-const customWsProvider = new ethers.providers.WebSocketProvider(process.env.WSS!, { name: 'ethereum', chainId: 1 });
-const accountOne: Ethers.Wallet = new ethers.Wallet(process.env.SECRET!).connect(customWsProvider);
-const contract: Ethers.Contract = new ethers.Contract(CONTRACT, ABI, accountOne);
 
 const init = async () => {
 
@@ -33,10 +26,12 @@ const init = async () => {
         return process.exit();
     };
 
-    await Logger('ETHERSCAN', contract);
-    await Logger('DEXTOOLS', contract);
-    await Logger('PANCAKE', contract);
-    await Logger('HONEYPOT', contract);
+    if (LOG_TOKEN_URLS_ON_STARTUP) {
+        await Logger('ETHERSCAN', contract);
+        await Logger('DEXTOOLS', contract);
+        await Logger('PANCAKE', contract);
+        await Logger('HONEYPOT', contract);
+    }
 
     const interval = setInterval(() => {
         if (buyPending) return process.stdout.clearLine(0);
@@ -54,21 +49,65 @@ const init = async () => {
 
     contract.on("Transfer", async (from: string, to: string, data: Ethers.BigNumber, event: any) => {
         if (buyPending) return;
-        buyPending = true;
-        const { buyGasPrice, gasLimit } = await computeBuyOrderFromTransaction(customWsProvider, event.transactionHash);
         const honeyPotScan = (await HoneypotScan(contract.address, 'eth'));
         if (honeyPotScan.is_honeypot) { Logger('SCAMM'); process.exit() };
+        buyPending = true;
         console.log('going in to buy')
-        const buy = await buyToken(accountOne, CONTRACT, gasLimit, buyGasPrice);
-        const result = !buy ? console.log('execution failed') : console.log(buy);
+        /**
+         * 
+         *  checks that the contract is not a honeypot and 
+         *  that the recorded transaction includes necessary data
+         *  Process terminates if honey pot detected.
+         *
+         */
+
+
+        let output = []
+        for (let i = 0; i < accounts.length; i++) {
+            const { buyGasPrice, gasLimit } = await computeBuyOrderFromTransaction(customWsProvider, event.transactionHash, i);
+            const buy = await buyToken(accounts[i], CONTRACT, gasLimit, buyGasPrice);
+            output.push(buy);
+        }
+        console.log(output);
         clearInterval(interval);
-        !buy && process.exit();
-        return result;
+        return process.exit();
+        /**
+         * 
+         *  Attempts to send transaction and logs output to the console.
+         * 
+         */
     })
 
-    customWsProvider.on('pending', async (data: any) => {
-        Updater(data, customWsProvider, contract.address);
-    })
+    // customWsProvider.on('pending', async (data: any) => {
+
+    //     if (buyPending) return;
+    //     const transaction = await customWsProvider.getTransaction(data);
+    //     if (!transaction) return;
+    //     if (transaction.to !== contract.address) return;
+    //     const honeyPotScan = (await HoneypotScan(contract.address, 'eth'));
+    //     if (honeyPotScan.is_honeypot) { Logger('SCAMM'); process.exit() };
+    //     buyPending = true;
+    //     console.log('going in to buy')
+    //     /**
+    //      * 
+    //      * checks that the contract is not a honeypot and 
+    //      * that the recorded transaction includes necessary data
+    //      * Process terminates if honey pot detected.
+    //      *
+    //      */
+
+    //     const { gasLimit, buyGasPrice } = await computeBuyOrderFromTransaction(customWsProvider, null, transaction);
+    //     const buy = await buyToken(accountOne, CONTRACT, gasLimit, buyGasPrice);
+    //     const result = !buy ? console.log('execution failed') : console.log(buy);
+    //     !buy && process.exit();
+    //     return result;
+    //     /**
+    //      * 
+    //      * Attempts to send transaction and logs output to the console.
+    //      * 
+    //      */
+
+    // })
 
     customWsProvider._websocket.on("error", async (ep: any) => {
         let count: number = 3;

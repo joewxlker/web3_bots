@@ -4,7 +4,7 @@
   "description": "listens to contract interactions to excecute buys/sells",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "nodemon dist/index.js",
     "watch": "tsc -w src/index.ts --outdir ./dist",
     "test": "nodemon test.js"
   },

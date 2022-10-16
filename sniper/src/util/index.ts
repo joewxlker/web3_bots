@@ -2,10 +2,9 @@ const ethers = require('ethers')
 const web3 = require('Web3');
 //@ts-ignore
 import * as Ethers from 'ethers';
-import erc20, { WBNB_CONTRACT, router, UNI_WOUTER, WETH_CONTRACT, BUY_AMOUNT, SLIPPAGE_ON_SELL, SLIPPAGE_ON_BUY } from "../constants";
+import erc20, { WBNB_CONTRACT, router, UNI_WOUTER, WETH_CONTRACT, SLIPPAGE_ON_SELL, SLIPPAGE_ON_BUY } from "../constants";
 import { abi, swapAbi } from "../constants/abis";
 import calculateAmounts from './calculateAmounts';
-import calculate_gas_price from "./calculategas";
 import Logger, { LogTransactionURL } from './logger';
 var colors = require('colors');
 
@@ -58,7 +57,7 @@ export const sellToken = async (account: Ethers.Wallet, tokenContract: string, g
 export const buyToken = async (account: Ethers.Wallet, tokenContract: string, gasLimit: Ethers.BigNumber, gasPrice: Ethers.BigNumber): Promise<string | null> => {
 
     try {
-        const { amountIn, amountOutMin } = await calculateAmounts(account, tokenContract);
+        const { amountIn, amountOutMin } = await calculateAmounts(account, tokenContract, 'BUY');
         const tx = await router(account).swapExactETHForTokensSupportingFeeOnTransferTokens(
             amountOutMin,
             [WETH_CONTRACT, tokenContract],
