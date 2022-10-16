@@ -22,6 +22,7 @@ export default async function Logger(type?: string, data?: any, txn?: Array<stri
 }
 
 export function LogTransactionURL(txnHash: any): string | null {
+    console.log('loggin txn: ', txnHash);
     const result = !txnHash ? null : txnHash.status === 2 ? Status.MINED_FAILED : txnHash.status === 1 ? Status.MINED_SUCCESS : Status.NOT_MINED;
     Logger('TXN_RECIEPT', [txnHash, result],)
     return result;

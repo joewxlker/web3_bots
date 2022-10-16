@@ -1,5 +1,5 @@
 import calculate_gas_price, { computeBuyOrderFromTransaction } from "./util/calculategas";
-import { ABI, BUY_AMOUNT } from './constants'
+import { ABI, BUY_AMOUNT, IGNORE_HONEYPOT_SCAN } from './constants'
 import { iface, CONTRACT, UNI_WOUTER } from "./constants";
 import { buyToken, sellToken } from "./util";
 import HoneypotScan, { HoneypotChains } from '@normalizex/honeypot-is';
@@ -24,20 +24,22 @@ const init = async () => {
     let buyPending: boolean = false;
     let count: number = 0;
 
-    const honeyPotScan = (await HoneypotScan(contract.address, 'eth'));
     await Logger('INIT', contract);
-    if (honeyPotScan.is_honeypot) {
+
+    const honeyPotScan = (await HoneypotScan(contract.address, 'eth'));
+    if (honeyPotScan.is_honeypot && !IGNORE_HONEYPOT_SCAN) {
         console.log(honeyPotScan)
         Logger('SCAMM')
         return process.exit();
     };
+
     await Logger('ETHERSCAN', contract);
     await Logger('DEXTOOLS', contract);
     await Logger('PANCAKE', contract);
     await Logger('HONEYPOT', contract);
 
     const interval = setInterval(() => {
-        if (buyPending) return
+        if (buyPending) return process.stdout.clearLine(0);
         if (count !== 4) count++;
         if (count === 4) count = 0;
         const characters = ['|', '\\', '-', '/'];
@@ -56,6 +58,7 @@ const init = async () => {
         const { buyGasPrice, gasLimit } = await computeBuyOrderFromTransaction(customWsProvider, event.transactionHash);
         const honeyPotScan = (await HoneypotScan(contract.address, 'eth'));
         if (honeyPotScan.is_honeypot) { Logger('SCAMM'); process.exit() };
+        console.log('going in to buy')
         const buy = await buyToken(accountOne, CONTRACT, gasLimit, buyGasPrice);
         const result = !buy ? console.log('execution failed') : console.log(buy);
         clearInterval(interval);
