@@ -1,0 +1,6 @@
+sniper/node_modules
+frontrunner/node_modules
+sniper/dist
+frontrunner/dist
+sniper/.env
+frontrunner/.env
