@@ -7,98 +7,48 @@ export const WBNB_CONTRACT = '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'
 export const UNI_WOUTER = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 export const WETH_CONTRACT = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 
-export default function erc20(account: any, tokenAddress: string) {
-    return new ethers.Contract(
-        tokenAddress,
-        [{
-            "constant": true,
-            "inputs": [{ "name": "_owner", "type": "address" }],
-            "name": "balanceOf",
-            "outputs": [{ "name": "balance", "type": "uint256" }],
-            "payable": false,
-            "type": "function"
-        },
-        { "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-        { "inputs": [], "name": "symbol", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" },
-        {
-            "constant": false,
-            "inputs": [{ "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" }],
-            "name": "approve",
-            "outputs": [{ "name": "", "type": "bool" }],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        ],
-        account
-    );
-}
-
-export function router(account: any) {
-    return new ethers.Contract(
-        UNI_WOUTER,
-        [
-            'function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)',
-            'function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)',
-            'function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)',
-            'function swapExactETHForTokensSupportingFeeOnTransferTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable',
-            'function swapExactTokensForETH (uint amountOutMin, address[] calldata path, address to, uint deadline) external payable'
-        ],
-        account
-    );
-}
-
-export const iface = new ethers.utils.Interface(['function    swapExactETHForTokens(uint256 amountOutMin, address[] path, address to, uint256 deadline)',
-    'function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)',
-    'function swapExactETHForTokensSupportingFeeOnTransferTokens(uint amountOutMin,address[] calldata path,address to,uint deadline)'])
-
-export const ABI = [{ "inputs": [], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "spender", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "uint256", "name": "_maxTxAmount", "type": "uint256" }], "name": "MaxTxAmountUpdated", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }], "name": "OwnershipTransferred", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "Transfer", "type": "event" }, { "inputs": [{ "internalType": "address[]", "name": "bots_", "type": "address[]" }], "name": "addbot", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" }], "name": "allowance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "approve", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "stateMutability": "pure", "type": "function" }, { "inputs": [], "name": "manualsend", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "manualswap", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "name", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "pure", "type": "function" }, { "inputs": [], "name": "openTrading", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "removeLimits", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "renounceOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "bool", "name": "onoff", "type": "bool" }], "name": "setCooldownEnabled", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "newTax", "type": "uint256" }], "name": "setStandardTax", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "pure", "type": "function" }, { "inputs": [], "name": "totalSupply", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "pure", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "transfer", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "sender", "type": "address" }, { "internalType": "address", "name": "recipient", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "transferFrom", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "stateMutability": "payable", "type": "receive" }]
-
-/**
- * 
- * ABI = ['function: ..., { doSomthing: '', }'] <-- abi doesnt use quotation around outside brackets
- * 
-**/
-
-export const CONTRACT: string = '0xbe7738bddbdac4db67f5ad2495286d56a64d4032';
-
-/**
- * 
- *  export const OWNER: string = 'insert owner address here';
- *  OWNER does nothing, dont need yet;
- * 
-**/
-
-export const BUY_AMOUNT: number = 0.005
-
 /** 
  * 
- *  Buy amount in ethereum
+ *  Buy amount in ethereum - Only need to set if MATCH_MOST_RECENT_BUY_AMOUNT = false 
  * 
  * */
+export const BUY_AMOUNT: number = 0.02
 
 export const SLIPPAGE_ON_SELL: number = 20;
-
 export const SLIPPAGE_ON_BUY: number = 20;
 
+// This is just configuration, no need to change
 export const customWsProvider = new ethers.providers.WebSocketProvider(process.env.WSS!, { name: 'ethereum', chainId: 1 });
-
-export const accountOne: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_ONE!).connect(customWsProvider);
-export const accountTwo: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_TWO!).connect(customWsProvider);
 
 /**
  *  create extra accounts here 
  * 
- *  @example export const accountTwo: Ethers.wallet = new ethers.Wallet(process.env.SECRET_TWO!).connect(customWsProvider)
+ *  @example export const accountThree: Ethers.wallet = new ethers.Wallet(process.env.SECRET_THREE!).connect(customWsProvider)
  * 
  * */
+export const accountOne: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_ONE!).connect(customWsProvider);
+export const accountTwo: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_TWO!).connect(customWsProvider);
+export const accounts: Array<Ethers.Wallet> = [accountOne, accountTwo, /** add accounts to this array to use them */];
 
-export const contract: Ethers.Contract = new ethers.Contract(CONTRACT, ABI, accountOne);
-export const accounts: Array<Ethers.Wallet> = [accountOne, accountTwo];
+export const redirectOne: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_REDIRECT_ONE).connect(customWsProvider)
+export const redirectTwo: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_REDIRECT_TWO).connect(customWsProvider)
+export const redirectAccounts: Array<Ethers.Wallet> = [redirectOne, redirectTwo, /** add redireect account to this array to use them */];
+/**
+ * 
+ *  enter the contract addresses of the redirect accounts here
+ * 
+ */
+export const REDIRECT_TOKENS_ACCOUNTS: Array<string> | null = ['0x85DFaDf707D571627252a52318B7c5Ef25A425a2', '0xc1f5e33028792765c4d9cabeA3eFce0FC652c2cF']
 
-// SETTINGS
 
-export const IGNORE_HONEYPOT_SCAN: boolean = false;
+/**
+ * 
+ * If set to true will generate ABI from contract address;
+ * This feature will decrease performance which may lead to undesired behaivours.
+ * 
+ */
+export const USE_DYNAMIC_ABI: boolean = true
+
 
 /** 
  * 
@@ -106,7 +56,32 @@ export const IGNORE_HONEYPOT_SCAN: boolean = false;
  *  !! Only set to true if you are willing to buy honeypot
  * 
  * */
+export const IGNORE_HONEYPOT_SCAN: boolean = true;
 
+
+/**
+ * 
+ *  If set to true, will log token etherscan, dextools, pancakeswap and honeypot urls
+ * 
+ */
 export const LOG_TOKEN_URLS_ON_STARTUP: boolean = true;
 
-// export const MATCH_MOST_RECENT_BUY_AMOUNT: boolean = true;
+
+/**
+ * 
+ *  Set BUY_INTERVAL_IN_MILLISECONDS to null to buy once per address;
+ *  
+ */
+export const BUY_INTERVAL_IN_MILLISECONDS: number | null = 1;
+export const MAX_AMOUNT_OF_BUYS_PER_ACCOUNT: number = 2;
+
+/**
+ * 
+ *  If set to true will buy at the same price as the most recent transaction
+ * 
+ */
+export const MATCH_MOST_RECENT_BUY_AMOUNT: boolean = false;
+
+
+export const SELL_ON_RUG_PENDING: boolean = true
+

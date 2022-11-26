@@ -1,4 +1,3 @@
-//@ts-ignore
 import * as Ethers from 'ethers';
 
 export async function computeBuyOrderFromTransaction(provider: any, txHash: Ethers.Transaction | undefined, count: number, txn?: any): Promise<{
