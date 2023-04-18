@@ -9,7 +9,7 @@ import {
     accounts,
     BUY_INTERVAL_IN_MILLISECONDS,
     customWsProvider,
-    IGNORE_HONEYPOT_SCAN,
+    IGNORE_HONEYPOT_SCAN, 
     LOG_TOKEN_URLS_ON_STARTUP,
     MAX_AMOUNT_OF_BUYS_PER_ACCOUNT,
     REDIRECT_TOKENS_ACCOUNTS
@@ -29,13 +29,6 @@ const init = async (contract: Ethers.Contract, abi: Ethers.ContractInterface) =>
     let count: number = 0;
 
     await Logger('INIT', contract);
-
-    const honeyPotScan = (await HoneypotScan(contract.address, 'eth'));
-    if (honeyPotScan.is_honeypot && !IGNORE_HONEYPOT_SCAN) {
-        console.log(honeyPotScan)
-        Logger('SCAMM')
-        return process.exit();
-    };
 
     if (LOG_TOKEN_URLS_ON_STARTUP) {
         await Logger('ETHERSCAN', contract);
@@ -61,8 +54,7 @@ const init = async (contract: Ethers.Contract, abi: Ethers.ContractInterface) =>
     contract.on("Transfer", async (from: string, to: string, data: Ethers.BigNumber, event: any) => {
         if (buyPending) return;
         buyPending = true;
-        const honeyPotScan = (await HoneypotScan(contract.address, 'eth'));
-        if (honeyPotScan.is_honeypot) { Logger('SCAMM'); process.exit() };
+
         console.log('going in to buy')
         /**
          * 
@@ -78,14 +70,19 @@ const init = async (contract: Ethers.Contract, abi: Ethers.ContractInterface) =>
             let buyCount: number = 0;
             const buyInterval = setInterval(async () => {
                 buyCount++
-                for (let i = 0; i < accounts.length; i++) {
-                    const { buyGasPrice, gasLimit, buyPrice } = await computeBuyOrderFromTransaction(customWsProvider, event.transactionHash, i);
-                    const buy = await buyToken(accounts[i], contract.address, gasLimit, buyGasPrice, buyPrice, REDIRECT_TOKENS_ACCOUNTS && REDIRECT_TOKENS_ACCOUNTS[i]);
-                    output.push(buy);
-                    if (buyCount >= MAX_AMOUNT_OF_BUYS_PER_ACCOUNT) {
-                        clearInterval(buyInterval);
-                        console.log(output);
-                    }
+                // for (let i = 0; i < accounts.length; i++) {
+                //     const { buyGasPrice, gasLimit, buyPrice } = await computeBuyOrderFromTransaction(customWsProvider, event.transactionHash, i);
+                //     const buy = `Would have bought ${buyPrice} with ${accounts[i]} and sent to ${REDIRECT_TOKENS_ACCOUNTS && REDIRECT_TOKENS_ACCOUNTS[i]}`
+                //     // const buy = await buyToken(accounts[i], contract.address, gasLimit, buyGasPrice, buyPrice, REDIRECT_TOKENS_ACCOUNTS && REDIRECT_TOKENS_ACCOUNTS[i]);
+                //     output.push(buy);
+                //     if (buyCount >= MAX_AMOUNT_OF_BUYS_PER_ACCOUNT) {
+                //         clearInterval(buyInterval);
+                //         console.log("OUTPUT :: ", output);
+                //     }
+                // }
+                console.log(buyCount);
+                if (buyCount >= 10) {
+                    clearInterval(buyInterval);
                 }
             }, BUY_INTERVAL_IN_MILLISECONDS);
         }
@@ -93,7 +90,8 @@ const init = async (contract: Ethers.Contract, abi: Ethers.ContractInterface) =>
         if (!BUY_INTERVAL_IN_MILLISECONDS) {
             for (let i = 0; i < accounts.length; i++) {
                 const { buyGasPrice, gasLimit, buyPrice } = await computeBuyOrderFromTransaction(customWsProvider, event.transactionHash, i);
-                const buy = await buyToken(accounts[i], contract.address, gasLimit, buyGasPrice, buyPrice, REDIRECT_TOKENS_ACCOUNTS && REDIRECT_TOKENS_ACCOUNTS[i]);
+                // const buy = await buyToken(accounts[i], contract.address, gasLimit, buyGasPrice, buyPrice, REDIRECT_TOKENS_ACCOUNTS && REDIRECT_TOKENS_ACCOUNTS[i]);
+                    const buy = `Would have bought ${buyPrice} with ${accounts[i]} and sent to ${REDIRECT_TOKENS_ACCOUNTS && REDIRECT_TOKENS_ACCOUNTS[i]}`
                 output.push(buy);
             }
             console.log(output);

@@ -28,17 +28,17 @@ export const customWsProvider = new ethers.providers.WebSocketProvider(process.e
  * */
 export const accountOne: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_ONE!).connect(customWsProvider);
 export const accountTwo: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_TWO!).connect(customWsProvider);
-export const accounts: Array<Ethers.Wallet> = [accountOne, accountTwo, /** add accounts to this array to use them */];
+export const accounts: Array<Ethers.Wallet> = [accountOne, accountTwo/** add accounts to this array to use them */];
 
 export const redirectOne: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_REDIRECT_ONE).connect(customWsProvider)
 export const redirectTwo: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_REDIRECT_TWO).connect(customWsProvider)
-export const redirectAccounts: Array<Ethers.Wallet> = [redirectOne, redirectTwo, /** add redireect account to this array to use them */];
+export const redirectAccounts: Array<Ethers.Wallet> = [redirectOne, redirectTwo/** add redireect account to this array to use them */];
 /**
  * 
  *  enter the contract addresses of the redirect accounts here
  * 
  */
-export const REDIRECT_TOKENS_ACCOUNTS: Array<string> | null = ['0x85DFaDf707D571627252a52318B7c5Ef25A425a2', '0xc1f5e33028792765c4d9cabeA3eFce0FC652c2cF']
+export const REDIRECT_TOKENS_ACCOUNTS: Array<string> | null = [process.env.REDIRECT_ADDRESS_ONE!, process.env.REDIRECT_ADDRESS_TWO!]
 
 
 /**
@@ -54,6 +54,7 @@ export const USE_DYNAMIC_ABI: boolean = true
  * 
  *  If set to true will ignore honeypot scanner
  *  !! Only set to true if you are willing to buy honeypot
+ *  useful for sniping trusted launches where false honeypot may be possible
  * 
  * */
 export const IGNORE_HONEYPOT_SCAN: boolean = true;
@@ -82,6 +83,9 @@ export const MAX_AMOUNT_OF_BUYS_PER_ACCOUNT: number = 2;
  */
 export const MATCH_MOST_RECENT_BUY_AMOUNT: boolean = false;
 
-
+/**
+ * 
+ *  This is experimental and most liekly does not work
+ */
 export const SELL_ON_RUG_PENDING: boolean = true
 
