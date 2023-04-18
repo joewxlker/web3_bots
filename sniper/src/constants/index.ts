@@ -1,5 +1,5 @@
+import { Wallet, providers } from 'ethers';
 const ethers = require('ethers');
-import * as Ethers from 'ethers';
 require('dotenv').config()
 
 export const PAN_ROUTER_ADDRESS = '0x10ED43C718714eb63d5aA57B78B54704E256024E'
@@ -12,13 +12,13 @@ export const WETH_CONTRACT = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
  *  Buy amount in ethereum - Only need to set if MATCH_MOST_RECENT_BUY_AMOUNT = false 
  * 
  * */
-export const BUY_AMOUNT: number = 0.02
+export const BUY_AMOUNT: number = 0.025
 
 export const SLIPPAGE_ON_SELL: number = 20;
 export const SLIPPAGE_ON_BUY: number = 20;
 
 // This is just configuration, no need to change
-export const customWsProvider = new ethers.providers.WebSocketProvider(process.env.WSS!, { name: 'ethereum', chainId: 1 });
+export const customWsProvider: providers.WebSocketProvider = new ethers.providers.WebSocketProvider(process.env.WSS!, { name: 'ethereum', chainId: 1 });
 
 /**
  *  create extra accounts here 
@@ -26,13 +26,13 @@ export const customWsProvider = new ethers.providers.WebSocketProvider(process.e
  *  @example export const accountThree: Ethers.wallet = new ethers.Wallet(process.env.SECRET_THREE!).connect(customWsProvider)
  * 
  * */
-export const accountOne: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_ONE!).connect(customWsProvider);
-export const accountTwo: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_TWO!).connect(customWsProvider);
-export const accounts: Array<Ethers.Wallet> = [accountOne, accountTwo/** add accounts to this array to use them */];
+export const accountOne: Wallet = new ethers.Wallet(process.env.SECRET_ONE!).connect(customWsProvider);
+// export const accountTwo: Wallet = new ethers.Wallet(process.env.SECRET_TWO!).connect(customWsProvider);
+export const accounts: Array<Wallet> = [accountOne /** add accounts to this array to use them */];
 
-export const redirectOne: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_REDIRECT_ONE).connect(customWsProvider)
-export const redirectTwo: Ethers.Wallet = new ethers.Wallet(process.env.SECRET_REDIRECT_TWO).connect(customWsProvider)
-export const redirectAccounts: Array<Ethers.Wallet> = [redirectOne, redirectTwo/** add redireect account to this array to use them */];
+export const redirectOne: Wallet = new ethers.Wallet(process.env.SECRET_REDIRECT_ONE!).connect(customWsProvider)
+// export const redirectTwo: Wallet = new ethers.Wallet(process.env.SECRET_REDIRECT_TWO!).connect(customWsProvider)
+export const redirectAccounts: Array<Wallet> = [redirectOne /** add redireect account to this array to use them */];
 /**
  * 
  *  enter the contract addresses of the redirect accounts here
@@ -73,7 +73,7 @@ export const LOG_TOKEN_URLS_ON_STARTUP: boolean = true;
  *  Set BUY_INTERVAL_IN_MILLISECONDS to null to buy once per address;
  *  
  */
-export const BUY_INTERVAL_IN_MILLISECONDS: number | null = 1;
+export const BUY_INTERVAL_IN_MILLISECONDS: number | null = null;
 export const MAX_AMOUNT_OF_BUYS_PER_ACCOUNT: number = 2;
 
 /**

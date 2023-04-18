@@ -1,7 +1,6 @@
 import { computeBuyOrderFromTransaction } from "./util/calculategas";
 import { redirectAccounts, SELL_ON_RUG_PENDING, USE_DYNAMIC_ABI } from "./constants";
 import { buyToken, sellToken } from "./util";
-import HoneypotScan from '@normalizex/honeypot-is';
 import * as Ethers from 'ethers';
 import Logger from "./util/logger";
 const abiDecoder = require('abi-decoder');
@@ -9,7 +8,6 @@ import {
     accounts,
     BUY_INTERVAL_IN_MILLISECONDS,
     customWsProvider,
-    IGNORE_HONEYPOT_SCAN, 
     LOG_TOKEN_URLS_ON_STARTUP,
     MAX_AMOUNT_OF_BUYS_PER_ACCOUNT,
     REDIRECT_TOKENS_ACCOUNTS
@@ -51,48 +49,38 @@ const init = async (contract: Ethers.Contract, abi: Ethers.ContractInterface) =>
         process.stdout.write(` ~ INDEXING, Waiting for first pending txn${dots.join('')}${spaces.join('')}${characters[count]}\r`);
     }, 200);
 
+    // Only listens for completed transactions from the contract
     contract.on("Transfer", async (from: string, to: string, data: Ethers.BigNumber, event: any) => {
+
         if (buyPending) return;
+
         buyPending = true;
-
-        console.log('going in to buy')
-        /**
-         * 
-         *  checks that the contract is not a honeypot and 
-         *  that the recorded transaction includes necessary data
-         *  Process terminates if honey pot detected.
-         *
-         */
-
+        process.stdout.clearLine(0);
+        console.log('GOING IN TO BUY')
         let output: any[] = [];
 
         if (BUY_INTERVAL_IN_MILLISECONDS !== null) {
             let buyCount: number = 0;
             const buyInterval = setInterval(async () => {
                 buyCount++
-                // for (let i = 0; i < accounts.length; i++) {
-                //     const { buyGasPrice, gasLimit, buyPrice } = await computeBuyOrderFromTransaction(customWsProvider, event.transactionHash, i);
-                //     const buy = `Would have bought ${buyPrice} with ${accounts[i]} and sent to ${REDIRECT_TOKENS_ACCOUNTS && REDIRECT_TOKENS_ACCOUNTS[i]}`
-                //     // const buy = await buyToken(accounts[i], contract.address, gasLimit, buyGasPrice, buyPrice, REDIRECT_TOKENS_ACCOUNTS && REDIRECT_TOKENS_ACCOUNTS[i]);
-                //     output.push(buy);
-                //     if (buyCount >= MAX_AMOUNT_OF_BUYS_PER_ACCOUNT) {
-                //         clearInterval(buyInterval);
-                //         console.log("OUTPUT :: ", output);
-                //     }
-                // }
-                console.log(buyCount);
-                if (buyCount >= 10) {
-                    clearInterval(buyInterval);
+                for (let i = 0; i < accounts.length; i++) {
+                    const { buyGasPrice, gasLimit, buyPrice } = await computeBuyOrderFromTransaction(customWsProvider, event.transactionHash, i);
+                    const buy = await buyToken(accounts[i], contract.address, gasLimit, buyGasPrice, buyPrice, REDIRECT_TOKENS_ACCOUNTS && REDIRECT_TOKENS_ACCOUNTS[i]);
+                    output.push(buy);
                 }
-            }, BUY_INTERVAL_IN_MILLISECONDS);
+                if (buyCount >= MAX_AMOUNT_OF_BUYS_PER_ACCOUNT) {
+                    clearInterval(buyInterval);
+                    console.log("OUTPUT :: ", output);
+                }
+            }, 1);
+            return listenToRugPending();
         }
 
         if (!BUY_INTERVAL_IN_MILLISECONDS) {
             for (let i = 0; i < accounts.length; i++) {
                 const { buyGasPrice, gasLimit, buyPrice } = await computeBuyOrderFromTransaction(customWsProvider, event.transactionHash, i);
-                // const buy = await buyToken(accounts[i], contract.address, gasLimit, buyGasPrice, buyPrice, REDIRECT_TOKENS_ACCOUNTS && REDIRECT_TOKENS_ACCOUNTS[i]);
-                    const buy = `Would have bought ${buyPrice} with ${accounts[i]} and sent to ${REDIRECT_TOKENS_ACCOUNTS && REDIRECT_TOKENS_ACCOUNTS[i]}`
-                output.push(buy);
+                const buy = await buyToken(accounts[i], contract.address, gasLimit, buyGasPrice, buyPrice, REDIRECT_TOKENS_ACCOUNTS && REDIRECT_TOKENS_ACCOUNTS[i]);
+                output.push("OUTPUT :: ", buy);
             }
             console.log(output);
             clearInterval(interval);
@@ -112,13 +100,13 @@ const init = async (contract: Ethers.Contract, abi: Ethers.ContractInterface) =>
             if (!transaction) return;
             if (!transaction.to) return;
             if (transaction.to.toLowerCase() !== contract.address.toLowerCase()) return;
-            const decodedData = abiDecoder.decodeMethod(await transaction.data);
-            decodedData !== 'approve' && console.log(decodedData)
+            const decodedData = abiDecoder.decodeMethod(transaction.data);
+            decodedData?.name !== 'approve' && console.log(decodedData)
             if (decodedData.name === 'remove liquidity') {
                 console.log('attempting to sell');
                 if (SELL_ON_RUG_PENDING) {
                     for (let i = 0; i < accounts.length; i++) {
-                        await sellToken(REDIRECT_TOKENS_ACCOUNTS ? redirectAccounts[i] : accounts[i], contract.address, transaction.gasLimit, transaction.gasPrice);
+                        await sellToken(REDIRECT_TOKENS_ACCOUNTS ? redirectAccounts[i] : accounts[i], contract.address, transaction.gasLimit, transaction.gasPrice!);
                         return process.exit();
                     }
                 }
