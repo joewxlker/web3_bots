@@ -76,16 +76,18 @@ const init = async (contract: Ethers.Contract, abi: Ethers.ContractInterface) =>
             return listenToRugPending();
         }
 
-        if (!BUY_INTERVAL_IN_MILLISECONDS) {
+        if (BUY_INTERVAL_IN_MILLISECONDS === null) {
             for (let i = 0; i < accounts.length; i++) {
                 const { buyGasPrice, gasLimit, buyPrice } = await computeBuyOrderFromTransaction(customWsProvider, event.transactionHash, i);
                 const buy = await buyToken(accounts[i], contract.address, gasLimit, buyGasPrice, buyPrice, REDIRECT_TOKENS_ACCOUNTS && REDIRECT_TOKENS_ACCOUNTS[i]);
-                output.push("OUTPUT :: ", buy);
+                output.push(buy);
             }
-            console.log(output);
+            console.log("OUTPUT :: ", output);
             clearInterval(interval);
             return listenToRugPending();
         }
+
+        return console.log("DID NOT BUY");
         /**
          * 
          *  Attempts to send transaction and logs output to the console.
@@ -111,7 +113,6 @@ const init = async (contract: Ethers.Contract, abi: Ethers.ContractInterface) =>
                     }
                 }
             }
-            console.log(abiDecoder.decodeMethod(await transaction.data).name);
             // clearInterval(interval);
             // process.stdout.clearLine(0);
         })

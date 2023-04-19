@@ -14,8 +14,8 @@ export const WETH_CONTRACT = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
  * */
 export const BUY_AMOUNT: number = 0.025
 
-export const SLIPPAGE_ON_SELL: number = 20;
-export const SLIPPAGE_ON_BUY: number = 20;
+export const SLIPPAGE_ON_SELL: number = 30;
+export const SLIPPAGE_ON_BUY: number = 30;
 
 // This is just configuration, no need to change
 export const customWsProvider: providers.WebSocketProvider = new ethers.providers.WebSocketProvider(process.env.WSS!, { name: 'ethereum', chainId: 1 });
